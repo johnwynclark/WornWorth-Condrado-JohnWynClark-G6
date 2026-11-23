@@ -2,10 +2,19 @@
 {% block title %}Seller dashboard · WornWorth{% endblock %}
 {% block content %}
 <h1>Hi, {{ user.full_name }}</h1>
-<p class="lead">Your seller space. Listings and sales tools will appear here as those features go live.</p>
-<div class="grid">
-  <a class="tile" href="{% url 'accounts:profile' %}"><b>My profile</b><span>Keep your contact details up to date for buyers.</span></a>
-  <div class="tile tile-soon"><b>My listings</b><span>Create and manage clothing listings. Coming in the next phase.</span></div>
-  <div class="tile tile-soon"><b>Sales and shipments</b><span>Fulfil orders and add tracking. Coming in the next phase.</span></div>
+<div class="stats">
+  <div><strong>{{ live_count }}</strong><span>Live listings</span></div>
+  <div><strong>{{ draft_count }}</strong><span>Drafts</span></div>
+  <div><strong>{{ pending_orders }}</strong><span>Orders to confirm</span></div>
+  <div><strong>{{ to_ship_orders }}</strong><span>Orders to ship</span></div>
 </div>
+<p class="actions"><a class="btn" href="{% url 'listings:create' %}">New listing</a> <a class="btn btn-ghost" href="{% url 'listings:my_listings' %}">My listings</a> <a class="btn btn-ghost" href="{% url 'orders:list' %}">Orders</a> <a class="btn btn-ghost" href="{% url 'accounts:profile' %}">My profile</a></p>
+<section class="panel">
+  <h2>Recent orders</h2>
+  {% if recent_orders %}<div class="table-scroll"><table class="rows"><tbody>{% for order in recent_orders %}
+    <tr><td><a href="{% url 'orders:detail' order.pk %}"><b>{{ order.order_reference }}</b></a></td>
+    <td>{% for item in order.items.all %}{{ item.quantity }} × {{ item.listing.title }}{% endfor %}</td>
+    <td>₱{{ order.total_amount|floatformat:"2g" }}</td><td><span class="badge st-{{ order.order_status|lower }}">{{ order.get_order_status_display }}</span></td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<p>No orders yet. Publish a listing and buyers can order it right away.</p>{% endif %}
+</section>
 {% endblock %}

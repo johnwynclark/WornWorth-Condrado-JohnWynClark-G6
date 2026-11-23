@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{% if listing %}Edit listing{% else %}New listing{% endif %} · WornWorth{% endblock %}
+{% block content %}
+<div class="head-row"><h1>{% if listing %}Edit listing{% else %}New listing{% endif %}</h1><a class="btn btn-ghost" href="{% url 'listings:my_listings' %}">Back to my listings</a></div>
+<div class="two-col">
+  <section class="panel">
+    <form method="post" {% if not listing %}enctype="multipart/form-data"{% endif %} novalidate>
+      {% csrf_token %}
+      {% for field in form %}{% include "_field.html" %}{% endfor %}
+      <div class="actions">
+        {% if listing %}
+          <button class="btn" type="submit">Save changes</button>
+        {% else %}
+          <button class="btn" type="submit" name="action" value="publish">Publish</button>
+          <button class="btn btn-ghost" type="submit" name="action" value="draft">Save as draft</button>
+        {% endif %}
+      </div>
+      {% if not listing %}<p class="hint">Publishing needs a main photo. A draft is private until you publish it.</p>{% endif %}
+    </form>
+  </section>
+
+  {% if listing %}
+  <section class="panel">
+    <h2>Photos</h2>
+    <p><span class="badge st-{{ listing.listing_status|lower }}">{{ listing.get_listing_status_display }}</span></p>
+    {% if images %}
+    <ul class="photo-list">{% for image in images %}
+      <li><img src="{{ image.image.url }}" alt="Photo {{ forloop.counter }}">
+        <div>
+          {% if image.is_primary %}<span class="badge">Main photo</span>{% else %}
+          <form method="post" action="{% url 'listings:image_primary' image.pk %}" class="inline">{% csrf_token %}<button class="link-btn" type="submit">Make main</button></form>{% endif %}
+          <form method="post" action="{% url 'listings:image_delete' image.pk %}" class="inline" onsubmit="return confirm('Remove this photo?')">{% csrf_token %}<button class="link-btn danger" type="submit">Remove</button></form>
+        </div></li>{% endfor %}
+    </ul>
+    {% else %}<p class="muted">No photos yet. Add one to publish this listing.</p>{% endif %}
+    {% if can_add_image %}
+    <form method="post" action="{% url 'listings:image_add' listing.pk %}" enctype="multipart/form-data">{% csrf_token %}
+      {% with field=image_form.image %}{% include "_field.html" %}{% endwith %}
+      <button class="btn btn-ghost" type="submit">Upload photo</button>
+    </form>
+    {% else %}<p class="hint">You've reached the {{ max_images }}-photo limit.</p>{% endif %}
+    <hr>
+    <h2>Visibility</h2>
+    {% if listing.listing_status == 'ACTIVE' %}
+      <form method="post" action="{% url 'listings:status' listing.pk %}">{% csrf_token %}<input type="hidden" name="target" value="INACTIVE"><input type="hidden" name="next" value="{% url 'listings:edit' listing.pk %}"><button class="btn btn-ghost" type="submit">Deactivate listing</button></form>
+    {% else %}
+      <form method="post" action="{% url 'listings:status' listing.pk %}">{% csrf_token %}<input type="hidden" name="target" value="ACTIVE"><input type="hidden" name="next" value="{% url 'listings:edit' listing.pk %}"><button class="btn" type="submit">Publish listing</button></form>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

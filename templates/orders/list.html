@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Orders · WornWorth{% endblock %}
+{% block content %}
+<h1>{% if user.role == 'BUYER' %}My orders{% elif user.role == 'SELLER' %}Orders for my listings{% else %}All orders{% endif %}</h1>
+<form method="get" class="filters" novalidate>
+  {% if user.role == 'ADMIN' %}<div class="field grow"><label for="q">Search reference or buyer</label><input type="text" id="q" name="q" value="{{ q }}"></div>{% endif %}
+  <div class="field"><label for="status">Status</label><select id="status" name="status"><option value="">All</option>{% for value, label in statuses %}<option value="{{ value }}" {% if current == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn" type="submit">Filter</button></div>
+</form>
+{% if page.object_list %}
+<div class="table-scroll"><table class="rows">
+  <thead><tr><th>Order</th><th>Item</th>{% if user.role != 'BUYER' %}<th>Buyer</th>{% endif %}<th>Total</th><th>Status</th><th>Placed</th></tr></thead>
+  <tbody>{% for order in page.object_list %}
+    <tr>
+      <td><a href="{% url 'orders:detail' order.pk %}"><b>{{ order.order_reference }}</b></a></td>
+      <td>{% for item in order.items.all %}{{ item.quantity }} × {{ item.listing.title }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+      {% if user.role != 'BUYER' %}<td>{{ order.buyer.full_name }}</td>{% endif %}
+      <td>₱{{ order.total_amount|floatformat:"2g" }}</td>
+      <td><span class="badge st-{{ order.order_status|lower }}">{{ order.get_order_status_display }}</span></td>
+      <td>{{ order.ordered_at|date:"M j, Y" }}</td>
+    </tr>{% endfor %}
+  </tbody>
+</table></div>
+{% include "_pager.html" %}
+{% else %}
+<div class="panel empty"><h2>No orders here yet</h2>
+  {% if user.role == 'BUYER' %}<p>Find something you like and your order will show up here.</p><p><a class="btn" href="{% url 'listings:browse' %}">Browse clothing</a></p>
+  {% elif user.role == 'SELLER' %}<p>When a buyer orders one of your items, it will appear here for you to confirm and ship.</p>
+  {% else %}<p>No orders match these filters.</p>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

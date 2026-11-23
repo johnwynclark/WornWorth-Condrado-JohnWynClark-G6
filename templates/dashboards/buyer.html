@@ -2,10 +2,18 @@
 {% block title %}Buyer dashboard · WornWorth{% endblock %}
 {% block content %}
 <h1>Hi, {{ user.full_name }}</h1>
-<p class="lead">Your buyer space. Browsing, your cart and orders will appear here as those features go live.</p>
-<div class="grid">
-  <a class="tile" href="{% url 'accounts:profile' %}"><b>My profile</b><span>Update your details and contact number.</span></a>
-  <div class="tile tile-soon"><b>Browse clothing</b><span>Search by size, condition and price. Coming in the next phase.</span></div>
-  <div class="tile tile-soon"><b>Cart and orders</b><span>Track purchases and deliveries. Coming in the next phase.</span></div>
+<div class="stats">
+  <div><strong>{{ available_count }}</strong><span>Items for sale now</span></div>
+  <div><strong>{{ active_orders }}</strong><span>Orders in progress</span></div>
+  <div><strong>{{ completed_orders }}</strong><span>Orders completed</span></div>
 </div>
+<p class="actions"><a class="btn" href="{% url 'listings:browse' %}">Browse clothing</a> <a class="btn btn-ghost" href="{% url 'orders:list' %}">My orders</a> <a class="btn btn-ghost" href="{% url 'accounts:profile' %}">My profile</a></p>
+<section class="panel">
+  <h2>Recent orders</h2>
+  {% if recent_orders %}<div class="table-scroll"><table class="rows"><tbody>{% for order in recent_orders %}
+    <tr><td><a href="{% url 'orders:detail' order.pk %}"><b>{{ order.order_reference }}</b></a></td>
+    <td>{% for item in order.items.all %}{{ item.listing.title }}{% endfor %}</td>
+    <td>₱{{ order.total_amount|floatformat:"2g" }}</td><td><span class="badge st-{{ order.order_status|lower }}">{{ order.get_order_status_display }}</span></td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<p>You haven't ordered anything yet. <a href="{% url 'listings:browse' %}">Find your first piece.</a></p>{% endif %}
+</section>
 {% endblock %}

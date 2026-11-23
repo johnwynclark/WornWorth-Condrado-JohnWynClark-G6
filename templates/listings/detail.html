@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} · WornWorth{% endblock %}
+{% block content %}
+<div class="detail">
+  <div class="gallery">
+    {% with img=listing.primary_image %}{% if img %}<img class="hero-img" src="{{ img.image.url }}" alt="{{ listing.title }}">{% else %}<div class="ph tall">No photo yet</div>{% endif %}{% endwith %}
+    {% if listing.images.all|length > 1 %}<div class="thumbs">{% for image in listing.images.all %}<a href="{{ image.image.url }}" target="_blank" rel="noopener"><img src="{{ image.image.url }}" alt="Photo {{ forloop.counter }} of {{ listing.title }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
+  </div>
+  <div>
+    <h1>{{ listing.title }}</h1>
+    <p class="price">₱{{ listing.price|floatformat:"2g" }}</p>
+    <p><span class="badge st-{{ listing.listing_status|lower }}">{{ listing.get_listing_status_display }}</span>
+       {% if listing.listing_status == 'ACTIVE' and listing.quantity == 0 %}<span class="badge st-cancelled">Sold out</span>{% endif %}</p>
+    <dl class="details">
+      <dt>Category</dt><dd>{{ listing.category }}</dd>
+      <dt>Size</dt><dd>{{ listing.size }}</dd>
+      <dt>Condition</dt><dd>{{ listing.get_condition_display }}</dd>
+      <dt>Available</dt><dd>{{ listing.quantity }}</dd>
+      <dt>Seller</dt><dd>{{ listing.seller.full_name }}</dd>
+    </dl>
+    <p class="prose">{{ listing.description|linebreaksbr }}</p>
+    {% if can_buy %}
+      <a class="btn" href="{% url 'orders:checkout' listing.pk %}">Buy this item</a>
+    {% elif user.role == 'BUYER' %}
+      <p class="muted">This item is sold out.</p>
+    {% elif user.role == 'SELLER' %}
+      <p class="actions"><a class="btn" href="{% url 'listings:edit' listing.pk %}">Edit listing</a> <a class="btn btn-ghost" href="{% url 'listings:my_listings' %}">Back to my listings</a></p>
+    {% elif user.role == 'ADMIN' %}
+      <form method="post" action="{% url 'listings:admin_remove' listing.pk %}" onsubmit="return confirm('Remove this listing from the marketplace?')">{% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'listings:admin_list' %}">
+        {% if listing.listing_status != 'REMOVED' %}<button class="btn btn-danger" type="submit">Remove listing</button>{% endif %}
+        <a class="btn btn-ghost" href="{% url 'listings:admin_list' %}">Back to listings</a>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+<a class="card" href="{% url 'listings:detail' listing.pk %}">
+  {% with img=listing.primary_image %}{% if img %}<img src="{{ img.image.url }}" alt="{{ listing.title }}" loading="lazy">{% else %}<div class="ph">No photo yet</div>{% endif %}{% endwith %}
+  <div class="card-body">
+    <b>{{ listing.title }}</b>
+    <span>Size {{ listing.size }} · {{ listing.get_condition_display }}</span>
+    <em>₱{{ listing.price|floatformat:"2g" }}</em>
+  </div>
+</a>

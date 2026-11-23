@@ -8,7 +8,10 @@
   <div><strong>{{ buyer_count }}</strong><span>Buyers</span></div>
   <div><strong>{{ seller_count }}</strong><span>Sellers</span></div>
   <div><strong>{{ suspended_count }}</strong><span>Suspended or deactivated</span></div>
+  <div><strong>{{ live_listing_count }}</strong><span>Live listings (of {{ listing_count }})</span></div>
+  <div><strong>{{ pending_order_count }}</strong><span>Pending orders (of {{ order_count }})</span></div>
 </div>
+<p class="actions"><a class="btn" href="{% url 'listings:admin_list' %}">Moderate listings</a> <a class="btn btn-ghost" href="{% url 'orders:list' %}">View all orders</a></p>
 <section class="panel">
   <h2>Newest accounts</h2>
   {% if recent_users %}

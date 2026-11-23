@@ -1,5 +1,6 @@
 """Django settings for WornWorth (PostgreSQL / Supabase only; no SQLite)."""
 import os
+from decimal import Decimal
 from pathlib import Path
 
 import dj_database_url
@@ -20,6 +21,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "accounts",
+    "listings",
+    "orders",
 ]
 
 MIDDLEWARE = [
@@ -94,3 +97,6 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Flat delivery fee added to every order (BR-17)
+DELIVERY_FEE = Decimal("50.00")

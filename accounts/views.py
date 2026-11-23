@@ -8,6 +8,8 @@ from django.views.decorators.http import require_POST
 from .decorators import role_required
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import User
+from listings.models import Listing
+from orders.models import Order
 
 DASHBOARD_BY_ROLE = {
     User.Role.BUYER: "accounts:buyer_dashboard",
@@ -64,12 +66,28 @@ def dashboard(request):
 
 @role_required(User.Role.BUYER)
 def buyer_dashboard(request):
-    return render(request, "dashboards/buyer.html")
+    orders = Order.objects.filter(buyer=request.user)
+    context = {
+        "active_orders": orders.exclude(order_status__in=[Order.Status.COMPLETED, Order.Status.CANCELLED]).count(),
+        "completed_orders": orders.filter(order_status=Order.Status.COMPLETED).count(),
+        "recent_orders": orders.prefetch_related("items__listing")[:5],
+        "available_count": Listing.objects.filter(listing_status=Listing.Status.ACTIVE, quantity__gt=0).count(),
+    }
+    return render(request, "dashboards/buyer.html", context)
 
 
 @role_required(User.Role.SELLER)
 def seller_dashboard(request):
-    return render(request, "dashboards/seller.html")
+    mine = Listing.objects.filter(seller=request.user)
+    orders = Order.objects.filter(items__listing__seller=request.user).distinct()
+    context = {
+        "live_count": mine.filter(listing_status=Listing.Status.ACTIVE).count(),
+        "draft_count": mine.filter(listing_status=Listing.Status.DRAFT).count(),
+        "pending_orders": orders.filter(order_status=Order.Status.PENDING).count(),
+        "to_ship_orders": orders.filter(order_status__in=[Order.Status.CONFIRMED, Order.Status.PROCESSING]).count(),
+        "recent_orders": orders.prefetch_related("items__listing").order_by("-ordered_at")[:5],
+    }
+    return render(request, "dashboards/seller.html", context)
 
 
 @role_required(User.Role.ADMIN)
@@ -80,6 +98,10 @@ def admin_dashboard(request):
         "seller_count": User.objects.filter(role=User.Role.SELLER).count(),
         "suspended_count": User.objects.exclude(account_status=User.Status.ACTIVE).count(),
         "recent_users": User.objects.order_by("-created_at")[:8],
+        "listing_count": Listing.objects.count(),
+        "live_listing_count": Listing.objects.filter(listing_status=Listing.Status.ACTIVE).count(),
+        "order_count": Order.objects.count(),
+        "pending_order_count": Order.objects.filter(order_status=Order.Status.PENDING).count(),
     }
     return render(request, "dashboards/admin.html", context)
 

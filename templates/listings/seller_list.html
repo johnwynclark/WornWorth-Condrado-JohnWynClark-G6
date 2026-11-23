@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}My listings · WornWorth{% endblock %}
+{% block content %}
+<div class="head-row"><h1>My listings</h1><a class="btn" href="{% url 'listings:create' %}">New listing</a></div>
+<nav class="tabs" aria-label="Filter by status">
+  <a href="{% url 'listings:my_listings' %}" {% if not current %}aria-current="page"{% endif %}>All ({{ total }})</a>
+  {% for value, label, count in status_tabs %}<a href="?status={{ value }}" {% if current == value %}aria-current="page"{% endif %}>{{ label }} ({{ count }})</a>{% endfor %}
+</nav>
+{% if listings %}
+<div class="table-scroll"><table class="rows">
+  <thead><tr><th>Item</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>{% for listing in listings %}
+    <tr>
+      <td class="item-cell">{% with img=listing.primary_image %}{% if img %}<img src="{{ img.image.url }}" alt="">{% else %}<span class="ph mini"></span>{% endif %}{% endwith %}
+        <div><a href="{% url 'listings:detail' listing.pk %}"><b>{{ listing.title }}</b></a><br><span class="muted">{{ listing.category }} · Size {{ listing.size }}</span></div></td>
+      <td>₱{{ listing.price|floatformat:"2g" }}</td>
+      <td>{{ listing.quantity }}</td>
+      <td><span class="badge st-{{ listing.listing_status|lower }}">{{ listing.get_listing_status_display }}</span></td>
+      <td class="row-actions">
+        {% if listing.listing_status != 'REMOVED' %}
+          <a href="{% url 'listings:edit' listing.pk %}">Edit</a>
+          {% if listing.listing_status == 'ACTIVE' %}
+            <form method="post" action="{% url 'listings:status' listing.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="target" value="INACTIVE"><button class="link-btn" type="submit">Deactivate</button></form>
+          {% else %}
+            <form method="post" action="{% url 'listings:status' listing.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="target" value="ACTIVE"><button class="link-btn" type="submit">Publish</button></form>
+          {% endif %}
+          <form method="post" action="{% url 'listings:delete' listing.pk %}" class="inline" onsubmit="return confirm('Delete this listing? Items with past orders are deactivated instead.')">{% csrf_token %}<button class="link-btn danger" type="submit">Delete</button></form>
+        {% else %}<span class="muted">Removed by admin</span>{% endif %}
+      </td>
+    </tr>{% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<div class="panel empty"><h2>{% if current %}No listings with this status{% else %}You haven't listed anything yet{% endif %}</h2><p>Add a photo, a size and an honest condition. Buyers can find your item as soon as you publish it.</p><p><a class="btn" href="{% url 'listings:create' %}">Create your first listing</a></p></div>
+{% endif %}
+{% endblock %}

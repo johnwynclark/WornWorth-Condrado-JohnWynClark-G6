@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Checkout · WornWorth{% endblock %}
+{% block content %}
+<h1>Checkout</h1>
+<div class="two-col">
+  <section class="panel">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "_field.html" with field=form.quantity %}
+      <h2>Delivery address</h2>
+      {% include "_field.html" with field=form.address %}
+      <p class="hint">No saved address? Fill in the details below and we'll save them for next time.</p>
+      {% include "_field.html" with field=form.recipient_name %}
+      {% include "_field.html" with field=form.phone %}
+      {% include "_field.html" with field=form.address_line %}
+      {% include "_field.html" with field=form.city %}
+      {% include "_field.html" with field=form.province %}
+      {% include "_field.html" with field=form.postal_code %}
+      <button class="btn btn-block" type="submit">Place order</button>
+      <p class="hint">Payment is arranged with the seller on delivery. Online payment comes in a later phase.</p>
+    </form>
+  </section>
+  <aside class="panel summary">
+    <h2>Your item</h2>
+    <div class="item-cell">
+      {% with img=listing.primary_image %}{% if img %}<img src="{{ img.image.url }}" alt="">{% else %}<span class="ph mini"></span>{% endif %}{% endwith %}
+      <div><b>{{ listing.title }}</b><br><span class="muted">Size {{ listing.size }} · {{ listing.get_condition_display }}<br>Sold by {{ listing.seller.full_name }}</span></div>
+    </div>
+    <dl class="details">
+      <dt>Price each</dt><dd>₱{{ listing.price|floatformat:"2g" }}</dd>
+      <dt>In stock</dt><dd>{{ listing.quantity }}</dd>
+      <dt>Delivery fee</dt><dd>₱{{ delivery_fee|floatformat:"2g" }}</dd>
+    </dl>
+    <p class="hint">Your total is the price times quantity, plus the delivery fee. It's shown on your order after you place it.</p>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Moderate listings · WornWorth{% endblock %}
+{% block content %}
+<h1>Moderate listings</h1>
+<form method="get" class="filters" novalidate>
+  <div class="field grow"><label for="q">Search title or seller</label><input type="text" id="q" name="q" value="{{ q }}"></div>
+  <div class="field"><label for="status">Status</label><select id="status" name="status"><option value="">All</option>{% for value, label in statuses %}<option value="{{ value }}" {% if current == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="field"><button class="btn" type="submit">Filter</button></div>
+</form>
+{% if page.object_list %}
+<div class="table-scroll"><table class="rows">
+  <thead><tr><th>Item</th><th>Seller</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>{% for listing in page.object_list %}
+    <tr>
+      <td><a href="{% url 'listings:detail' listing.pk %}"><b>{{ listing.title }}</b></a><br><span class="muted">{{ listing.category }}</span></td>
+      <td>{{ listing.seller.full_name }}<br><span class="muted">{{ listing.seller.email }}</span></td>
+      <td>₱{{ listing.price|floatformat:"2g" }}</td><td>{{ listing.quantity }}</td>
+      <td><span class="badge st-{{ listing.listing_status|lower }}">{{ listing.get_listing_status_display }}</span></td>
+      <td class="row-actions">
+        {% if listing.listing_status == 'REMOVED' %}
+          <form method="post" action="{% url 'listings:admin_restore' listing.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn" type="submit">Restore</button></form>
+        {% else %}
+          <form method="post" action="{% url 'listings:admin_remove' listing.pk %}" class="inline" onsubmit="return confirm('Remove this listing from the marketplace?')">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn danger" type="submit">Remove</button></form>
+        {% endif %}
+      </td>
+    </tr>{% endfor %}
+  </tbody>
+</table></div>
+{% include "_pager.html" %}
+{% else %}<div class="panel empty"><h2>No listings found</h2><p>Change the filters or wait for sellers to post items.</p></div>{% endif %}
+{% endblock %}

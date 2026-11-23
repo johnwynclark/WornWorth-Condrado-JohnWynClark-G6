@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order.order_reference }} · WornWorth{% endblock %}
+{% block content %}
+<div class="head-row"><h1>Order {{ order.order_reference }}</h1><a class="btn btn-ghost" href="{% url 'orders:list' %}">All orders</a></div>
+<p><span class="badge st-{{ order.order_status|lower }}">{{ order.get_order_status_display }}</span> <span class="muted">Placed {{ order.ordered_at|date:"F j, Y, g:i A" }}</span></p>
+
+{% if order.order_status == 'CANCELLED' %}
+  <p class="msg msg-error">This order was cancelled. The items went back into stock.</p>
+{% else %}
+  <ol class="timeline" aria-label="Order progress">
+    {% for value, label in timeline %}<li {% if forloop.counter0 <= order.timeline_index %}class="done"{% endif %} {% if value == order.order_status %}aria-current="step"{% endif %}>{{ label }}</li>{% endfor %}
+  </ol>
+{% endif %}
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Items</h2>
+    <div class="table-scroll"><table class="rows">
+      <thead><tr><th>Item</th><th>Qty</th><th>Price each</th><th>Subtotal</th></tr></thead>
+      <tbody>{% for item in order.items.all %}
+        <tr><td class="item-cell">{% with img=item.listing.primary_image %}{% if img %}<img src="{{ img.image.url }}" alt="">{% else %}<span class="ph mini"></span>{% endif %}{% endwith %}
+          <div><b>{{ item.listing.title }}</b><br><span class="muted">Size {{ item.listing.size }}</span></div></td>
+          <td>{{ item.quantity }}</td><td>₱{{ item.unit_price|floatformat:"2g" }}</td><td>₱{{ item.item_subtotal|floatformat:"2g" }}</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+    <dl class="details totals">
+      <dt>Subtotal</dt><dd>₱{{ order.subtotal|floatformat:"2g" }}</dd>
+      <dt>Delivery fee</dt><dd>₱{{ order.delivery_fee|floatformat:"2g" }}</dd>
+      <dt><b>Total</b></dt><dd><b>₱{{ order.total_amount|floatformat:"2g" }}</b></dd>
+    </dl>
+  </section>
+  <section class="panel">
+    <h2>Delivery</h2>
+    <p><b>{{ order.address.recipient_name }}</b><br>{{ order.address.address_line }}<br>{{ order.address.city }}, {{ order.address.province }} {{ order.address.postal_code }}<br>{{ order.address.phone }}</p>
+    {% if not is_buyer %}<p class="muted">Buyer: {{ order.buyer.full_name }} ({{ order.buyer.email }})</p>{% endif %}
+    {% if can_advance or can_cancel or can_receive %}<hr><div class="actions">
+      {% if can_advance %}<form method="post" action="{% url 'orders:advance' order.pk %}">{% csrf_token %}<button class="btn" type="submit">{{ order.seller_next.1 }}</button></form>{% endif %}
+      {% if can_receive %}<form method="post" action="{% url 'orders:received' order.pk %}">{% csrf_token %}<button class="btn" type="submit">I received this order</button></form>{% endif %}
+      {% if can_cancel %}<form method="post" action="{% url 'orders:cancel' order.pk %}" onsubmit="return confirm('Cancel this order?')">{% csrf_token %}<button class="btn btn-danger" type="submit">Cancel order</button></form>{% endif %}
+    </div>{% endif %}
+  </section>
+</div>
+{% endblock %}

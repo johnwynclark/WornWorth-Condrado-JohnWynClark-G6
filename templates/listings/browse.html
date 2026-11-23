@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Browse clothing · WornWorth{% endblock %}
+{% block content %}
+<h1>Browse clothing</h1>
+<form method="get" class="filters" novalidate>
+  <div class="field grow"><label for="{{ form.q.id_for_label }}">Search</label>{{ form.q }}</div>
+  <div class="field"><label for="{{ form.category.id_for_label }}">Category</label>{{ form.category }}</div>
+  <div class="field"><label for="{{ form.size.id_for_label }}">Size</label>{{ form.size }}</div>
+  <div class="field"><label for="{{ form.condition.id_for_label }}">Condition</label>{{ form.condition }}</div>
+  <div class="field"><label for="{{ form.min_price.id_for_label }}">Min ₱</label>{{ form.min_price }}</div>
+  <div class="field"><label for="{{ form.max_price.id_for_label }}">Max ₱</label>{{ form.max_price }}{% for e in form.max_price.errors %}<p class="error-text">{{ e }}</p>{% endfor %}</div>
+  <div class="field"><label for="{{ form.sort.id_for_label }}">Sort</label>{{ form.sort }}</div>
+  <div class="field"><button class="btn" type="submit">Apply</button> <a class="btn btn-ghost" href="{% url 'listings:browse' %}">Clear</a></div>
+</form>
+{% if page.object_list %}
+  <p class="muted">{{ page.paginator.count }} item{{ page.paginator.count|pluralize }} found</p>
+  <div class="cards">{% for listing in page.object_list %}{% include "listings/_card.html" %}{% endfor %}</div>
+  {% include "_pager.html" %}
+{% else %}
+  <div class="panel empty"><h2>Nothing matches yet</h2><p>Try a different search, widen the price range, or clear the filters. New items are listed all the time.</p></div>
+{% endif %}
+{% endblock %}
