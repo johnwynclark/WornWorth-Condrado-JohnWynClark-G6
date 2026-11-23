@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My profile · WornWorth{% endblock %}
+{% block content %}
+<section class="panel profile">
+  {% if profile_user.profile_photo %}<img class="avatar" src="{{ profile_user.profile_photo.url }}" alt="Profile photo of {{ profile_user.full_name }}">
+  {% else %}<div class="avatar avatar-initials" aria-hidden="true">{{ profile_user.initials }}</div>{% endif %}
+  <div>
+    <h1>{{ profile_user.full_name }}</h1>
+    <p><span class="badge badge-{{ profile_user.role|lower }}">{{ profile_user.get_role_display }}</span></p>
+  </div>
+</section>
+<section class="panel">
+  <dl class="details">
+    <dt>Email</dt><dd>{{ profile_user.email }}</dd>
+    <dt>Contact number</dt><dd>{{ profile_user.phone|default:"Not provided" }}</dd>
+    <dt>Account status</dt><dd>{{ profile_user.get_account_status_display }}</dd>
+    <dt>Member since</dt><dd>{{ profile_user.created_at|date:"F j, Y" }}</dd>
+  </dl>
+  <p><a class="btn" href="{% url 'accounts:profile_edit' %}">Edit profile</a></p>
+</section>
+{% endblock %}

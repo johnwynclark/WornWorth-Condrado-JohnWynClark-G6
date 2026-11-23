@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Buyer dashboard · WornWorth{% endblock %}
+{% block content %}
+<h1>Hi, {{ user.full_name }}</h1>
+<p class="lead">Your buyer space. Browsing, your cart and orders will appear here as those features go live.</p>
+<div class="grid">
+  <a class="tile" href="{% url 'accounts:profile' %}"><b>My profile</b><span>Update your details and contact number.</span></a>
+  <div class="tile tile-soon"><b>Browse clothing</b><span>Search by size, condition and price. Coming in the next phase.</span></div>
+  <div class="tile tile-soon"><b>Cart and orders</b><span>Track purchases and deliveries. Coming in the next phase.</span></div>
+</div>
+{% endblock %}

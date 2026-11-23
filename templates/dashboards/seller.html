@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Seller dashboard · WornWorth{% endblock %}
+{% block content %}
+<h1>Hi, {{ user.full_name }}</h1>
+<p class="lead">Your seller space. Listings and sales tools will appear here as those features go live.</p>
+<div class="grid">
+  <a class="tile" href="{% url 'accounts:profile' %}"><b>My profile</b><span>Keep your contact details up to date for buyers.</span></a>
+  <div class="tile tile-soon"><b>My listings</b><span>Create and manage clothing listings. Coming in the next phase.</span></div>
+  <div class="tile tile-soon"><b>Sales and shipments</b><span>Fulfil orders and add tracking. Coming in the next phase.</span></div>
+</div>
+{% endblock %}

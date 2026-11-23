@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard · WornWorth{% endblock %}
+{% block content %}
+<h1>Administration</h1>
+<p class="lead">Platform overview for {{ user.full_name }}.</p>
+<div class="stats">
+  <div><strong>{{ total_users }}</strong><span>Total users</span></div>
+  <div><strong>{{ buyer_count }}</strong><span>Buyers</span></div>
+  <div><strong>{{ seller_count }}</strong><span>Sellers</span></div>
+  <div><strong>{{ suspended_count }}</strong><span>Suspended or deactivated</span></div>
+</div>
+<section class="panel">
+  <h2>Newest accounts</h2>
+  {% if recent_users %}
+  <div class="table-scroll"><table>
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead>
+    <tbody>{% for u in recent_users %}
+      <tr><td>{{ u.full_name }}</td><td>{{ u.email }}</td><td>{{ u.get_role_display }}</td><td>{{ u.get_account_status_display }}</td><td>{{ u.created_at|date:"M j, Y" }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<p>No accounts yet.</p>{% endif %}
+  {% if user.is_superuser %}<p><a class="btn btn-ghost" href="{% url 'admin:accounts_user_changelist' %}">Manage users in Django admin</a></p>{% endif %}
+</section>
+{% endblock %}

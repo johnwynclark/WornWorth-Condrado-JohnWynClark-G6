@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WornWorth{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="{% url 'accounts:home' %}"><span class="brand-tag" aria-hidden="true"></span>WornWorth</a>
+    <nav class="nav" aria-label="Main">
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+        <a href="{% url 'accounts:profile' %}">Profile</a>
+        {% if user.is_superuser %}<a href="{% url 'admin:index' %}">Django admin</a>{% endif %}
+        <span class="who">{{ user.full_name }} <span class="badge badge-{{ user.role|lower }}">{{ user.get_role_display }}</span></span>
+        <form method="post" action="{% url 'accounts:logout' %}" class="inline">{% csrf_token %}<button class="link-btn" type="submit">Log out</button></form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Log in</a>
+        <a class="btn btn-small" href="{% url 'accounts:register' %}">Sign up</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+{% if messages %}
+<div class="wrap messages" role="status">
+  {% for message in messages %}<p class="msg msg-{{ message.level_tag }}">{{ message }}</p>{% endfor %}
+</div>
+{% endif %}
+
+<main class="wrap">{% block content %}{% endblock %}</main>
+
+<footer class="site-footer wrap">WornWorth: secondhand clothing, second life. CSIT327 Information Management II.</footer>
+</body>
+</html>

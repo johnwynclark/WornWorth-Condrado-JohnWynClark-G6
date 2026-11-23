@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Clothes that already have a story.</h1>
+    <p class="lead">Buy secondhand fashion at fair prices, or give the clothes you've outgrown a second life. WornWorth connects the two.</p>
+    <p class="actions"><a class="btn" href="{% url 'accounts:register' %}">Create an account</a> <a class="btn btn-ghost" href="{% url 'accounts:login' %}">Log in</a></p>
+  </div>
+  <div class="tags" aria-hidden="true">
+    <div class="price-tag t1"><b>Denim jacket</b><span>Size M · Good</span><em>₱650</em></div>
+    <div class="price-tag t2"><b>Linen shirt</b><span>Size S · Like new</span><em>₱320</em></div>
+    <div class="price-tag t3"><b>Wool cardigan</b><span>Size L · Fair</span><em>₱280</em></div>
+  </div>
+</section>
+{% endblock %}

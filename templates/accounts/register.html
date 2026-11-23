@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sign up · WornWorth{% endblock %}
+{% block content %}
+<section class="hang-tag">
+  <h1>Create your account</h1>
+  <p class="sub">Already registered? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}{% include "_field.html" %}{% endfor %}
+    <button class="btn btn-block" type="submit">Create account</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in · WornWorth{% endblock %}
+{% block content %}
+<section class="hang-tag">
+  <h1>Log in</h1>
+  <p class="sub">New here? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="form-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+    {% for field in form %}{% include "_field.html" %}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-block" type="submit">Log in</button>
+  </form>
+</section>
+{% endblock %}
